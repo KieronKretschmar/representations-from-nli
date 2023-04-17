@@ -39,45 +39,47 @@ def train_model(datamodule, encoder_name, save_name=None, use_wandb = False, **m
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     pl.seed_everything(42)
 
-    if save_name is None:
-        save_name = encoder_name
 
-    try:
-        if True: # TODO
-            logger = pl.loggers.WandbLogger(project="representations-from-nli", name=save_name + "_" + datetime.now().strftime("%d/%m/%Y-%H:%M:%S"), save_dir=LOG_PATH)
-        else:
-            logger = None
-    except:
-        print("Logging deactivated! Please log in to wandb to enable logging.")
-        logger=None
+    encoder_names = ["baseline", "unilstm", "bilstm", "bimaxlstm"] if encoder_name == 'all' else [encoder_name]
+    for encoder_name in encoder_names:
+            
+        if save_name is None:
+            save_name = encoder_name
 
-    # Create a PyTorch Lightning trainer with the generation callback
-    trainer = pl.Trainer(default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),                          # Where to save models
-                         accelerator="gpu" if str(device).startswith("cuda") else "cpu",                     # We run on a GPU (if possible)
-                         devices=1,                                                                          # How many GPUs/CPUs we want to use (1 is enough for the notebooks)
-                         max_epochs=25,                                                                     # How many epochs to train for if no patience is set
-                         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),  # Save the best checkpoint based on the maximum val_acc recorded. Saves only weights and not optimizer
-                                    LearningRateMonitor("epoch")],                                           # Log learning rate every epoch
-                         logger=logger,
-                         enable_progress_bar=True)                                                           # Set to False if you do not want a progress bar
+        try:
+            if True: # TODO
+                logger = pl.loggers.WandbLogger(project="representations-from-nli", name=save_name + "_" + datetime.now().strftime("%d/%m/%Y-%H:%M:%S"), save_dir=LOG_PATH)
+            else:
+                logger = None
+        except:
+            print("Logging deactivated! Please log in to wandb to enable logging.")
+            logger=None
 
-    # Check whether pretrained model exists. If yes, load it and skip training
-    pl.seed_everything(42) # To be reproducable
-    model = NLIModel(encoder_name=encoder_name, **model_kwargs)
-    trainer.fit(model, datamodule=datamodule)
-    print(f"Done fitting {encoder_name}.")
-    best_model = NLIModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path) # Load best checkpoint after training
+        # Create a PyTorch Lightning trainer with the generation callback
+        trainer = pl.Trainer(default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),                          # Where to save models
+                            accelerator="gpu" if str(device).startswith("cuda") else "cpu",                     # We run on a GPU (if possible)
+                            devices=1,                                                                          # How many GPUs/CPUs we want to use (1 is enough for the notebooks)
+                            max_epochs=25,                                                                      # How many epochs to train for if no patience is set
+                            callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),  # Save the best checkpoint based on the maximum val_acc recorded. Saves only weights and not optimizer
+                                        LearningRateMonitor("epoch")],                                           # Log learning rate every epoch
+                            logger=logger,                                                                      # Pass wandb logger
+                            enable_progress_bar=True)                                                           # Set to False if you do not want a progress bar
 
-    # Test best model on validation and test set
-    val_result = trainer.test(best_model, datamodule=datamodule, verbose=False)
-    test_result = trainer.test(best_model, datamodule=datamodule, verbose=False)
-    result = {"test": test_result[0]["test_acc"], "val": val_result[0]["test_acc"]}
+        pl.seed_everything(42) # To be reproducable
+        model = NLIModel(encoder_name=encoder_name, **model_kwargs)
+        trainer.fit(model, datamodule=datamodule)
+        print(f"Done fitting {encoder_name}.")
+        best_model = NLIModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path) # Load best checkpoint after training
 
-    # TODO Store best model for evaluation
-    best_encoder_path = BEST_ENCODER_CHECKPOINT_PATH / encoder_name
-    print(f"Saving encoder to {best_encoder_path}...")
-    torch.save(best_model.encoder, best_encoder_path)
-    return best_model, result
+        # Test best model on validation and test set
+        val_result = trainer.test(best_model, datamodule=datamodule, verbose=False)
+        test_result = trainer.test(best_model, datamodule=datamodule, verbose=False)
+        result = {"test": test_result[0]["test_acc"], "val": val_result[0]["test_acc"]}
+
+        # TODO Store best model for evaluation
+        best_encoder_path = BEST_ENCODER_CHECKPOINT_PATH / encoder_name
+        print(f"Saving encoder to {best_encoder_path}...")
+        torch.save(best_model.encoder, best_encoder_path)
 
 def main():
     
