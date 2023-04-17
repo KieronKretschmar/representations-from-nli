@@ -20,6 +20,8 @@ from datetime import datetime
 from models import NLIModel
 from data import SNLIDataModule
 
+LOG_PATH = Path("/logs")
+LOG_PATH.mkdir(exist_ok=True)
 CHECKPOINT_PATH = Path("/checkpoints")
 CHECKPOINT_PATH.mkdir(exist_ok=True)
 BEST_ENCODER_CHECKPOINT_PATH = Path("/checkpoints/best")
@@ -42,7 +44,7 @@ def train_model(datamodule, encoder_name, save_name=None, use_wandb = False, **m
 
     try:
         if True: # TODO
-            logger = pl.loggers.WandbLogger(project="representations-from-nli", name=save_name + "_" + datetime.now().strftime("%d/%m/%Y-%H:%M:%S"))
+            logger = pl.loggers.WandbLogger(project="representations-from-nli", name=save_name + "_" + datetime.now().strftime("%d/%m/%Y-%H:%M:%S"), save_dir=LOG_PATH)
         else:
             logger = None
     except:
