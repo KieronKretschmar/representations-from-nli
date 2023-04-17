@@ -63,7 +63,7 @@ def train_model(datamodule, encoder_name, save_name=None, use_wandb = False, **m
                             callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),  # Save the best checkpoint based on the maximum val_acc recorded. Saves only weights and not optimizer
                                         LearningRateMonitor("epoch"),                                           # Log learning rate every epoch
                                         TQDMProgressBar(refresh_rate=100),                                      # Don't flood SLURM
-                                        EarlyStopping(monitor="lr", mode="min", stopping_threshold=1e-5),]      # Stop when lr goes below 1e-5
+                                        EarlyStopping(monitor="lr", mode="min", stopping_threshold=1e-5),],     # Stop when lr goes below 1e-5
                             logger=logger,                                                                      # Pass wandb logger
                             enable_progress_bar=True)                                                           # Set to False if you do not want a progress bar
 
