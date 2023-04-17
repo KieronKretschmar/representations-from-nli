@@ -20,11 +20,11 @@ from datetime import datetime
 from models import NLIModel
 from data import SNLIDataModule
 
-LOG_PATH = Path("/logs")
+LOG_PATH = Path("./logs")
 LOG_PATH.mkdir(exist_ok=True)
-CHECKPOINT_PATH = Path("/checkpoints")
+CHECKPOINT_PATH = Path("./checkpoints")
 CHECKPOINT_PATH.mkdir(exist_ok=True)
-BEST_ENCODER_CHECKPOINT_PATH = Path("/checkpoints/best")
+BEST_ENCODER_CHECKPOINT_PATH = Path("./checkpoints/best")
 BEST_ENCODER_CHECKPOINT_PATH.mkdir(exist_ok=True)
 
 
@@ -84,13 +84,13 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-encoder", 
-        choices=["baseline", "unilstm", "bilstm", "bimaxlstm"], 
+        "--encoder", 
+        choices=["all", "baseline", "unilstm", "bilstm", "bimaxlstm"], 
         default="baseline",
         required=False
     )
     parser.add_argument(
-        "-save-name", 
+        "--save-name", 
         default=None,
         required=False
     )
