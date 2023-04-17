@@ -53,7 +53,7 @@ def train_model(datamodule, encoder_name, save_name=None, use_wandb = False, **m
 
         except:
             print("Logging offline!")
-            logger = pl.loggers.WandbLogger(project="representations-from-nli", name=save_name + "_" + datetime.now().strftime("%d/%m/%Y-%H:%M:%S"), save_dir=LOG_PATH, offline=True)
+            logger = pl.loggers.CSVLogger(save_dir=LOG_PATH)
 
         # Create a PyTorch Lightning trainer with the generation callback
         trainer = pl.Trainer(default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),                         # Where to save models
