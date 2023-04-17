@@ -91,7 +91,7 @@ class BidirectionalMaxPoolLSTM(nn.Module):
     def __init__(self, input_size = 300, output_size = 4096) -> None:
         super().__init__()
         self.input_size = input_size
-        self.hidden_size = output_size / 2
+        self.hidden_size = int(output_size / 2)
         self.output_size = output_size
         self.lstm = nn.LSTM(
             input_size = self.input_size,
@@ -113,12 +113,12 @@ class BidirectionalMaxPoolLSTM(nn.Module):
         seqs = pack_padded_sequence(seqs, seq_lengths, batch_first=True, enforce_sorted=False)
 
         output, (h_n, c_n) = self.lstm(seqs)
-        output_padded = pad_packed_sequence(output, batch_first=True) # (B, MaxSeqLen, 2 * hidden_size)
+        output_padded, _ = pad_packed_sequence(output, batch_first=True) # (B, MaxSeqLen, 2 * hidden_size)
 
         # Ignore paddings when taking max by overwriting them with large negative value
         with torch.no_grad():
             output_padded[output_padded==0] = -1e8
-            
+
         out = torch.max(output_padded, dim = 1) # (B, 2 * hidden_size)
         return out
 
