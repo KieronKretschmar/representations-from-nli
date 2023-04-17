@@ -102,6 +102,7 @@ class NLIModel(pl.LightningModule):
         # Logs the accuracy per epoch to tensorboard (weighted average over batches)
         self.log('train_acc', acc, on_step=False, on_epoch=True)
         self.log('train_loss', loss)
+        self.log("lr", self.trainer.optimizers[0].param_groups[0]["lr"], on_epoch=True)
         return loss  # Return tensor to call ".backward" on
     
 
