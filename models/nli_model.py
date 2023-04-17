@@ -84,7 +84,8 @@ class NLIModel(pl.LightningModule):
             "scheduler": plateau_sched,
             "monitor": "val_acc",
             "interval": "epoch",
-            "frequency": 1
+            "frequency": 1,
+            "name": "lr",               # make sure the lr after the last scheduler was applied is logged as 'lr'
         }
 
         return [optimizer], [step_sched_config, plateau_sched_config]
