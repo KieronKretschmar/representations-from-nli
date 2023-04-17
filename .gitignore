@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+# End of template
+data/glove
+cache/
+.vscode/
+*.job
+*.pickle
