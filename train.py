@@ -96,7 +96,11 @@ def main():
         default=None,
         required=False
     )
-    parser.add_argument("--rebuild-cache", help="increase output verbosity",
+    parser.add_argument("--rebuild-cache", help="Rebuild vocabulary even if cached version is available.",
+                    action="store_true",
+                    default=False)
+    
+    parser.add_argument("--use-subset", help="Use subset of the data for training.",
                     action="store_true",
                     default=False)
 
@@ -113,7 +117,7 @@ def main():
     print("args: ", args)
 
 
-    datamodule = SNLIDataModule(rebuild_cache=args.rebuild_cache)
+    datamodule = SNLIDataModule(rebuild_cache=args.rebuild_cache, use_subset=args.use_subset)
 
     train_model(
         datamodule,

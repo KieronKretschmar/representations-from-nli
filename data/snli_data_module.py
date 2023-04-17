@@ -16,7 +16,7 @@ from .vocabulary import Vocabulary
 
 
 class SNLIDataModule(pl.LightningDataModule):
-    def __init__(self, vocab_src = "snli", rebuild_cache = False, num_workers = 3, batch_size=64) -> None:
+    def __init__(self, vocab_src = "snli", rebuild_cache = False, num_workers = 3, batch_size=64, use_subset = False) -> None:
         super().__init__()
         self.vocab_src = vocab_src
         self.batch_size = batch_size
@@ -24,7 +24,7 @@ class SNLIDataModule(pl.LightningDataModule):
         self.num_workers = num_workers
         self.vocab_cache_path = Path("cache/vocab.pickle")
         self.token2vec_cache_path = Path("cache/token2vec.pickle")
-        self.test_run = True
+        self.use_subset = use_subset
     
     def prepare_data(self) -> None:
         """Download the SNLI dataset and creates and caches Vocabulary and token2vec dictionary.
@@ -32,7 +32,7 @@ class SNLIDataModule(pl.LightningDataModule):
         # Download prerequisites
         snli_ds = load_dataset('snli')
 
-        if self.test_run:
+        if self.use_subset:
             print("Using reduced snli dataset")
             for split in snli_ds:
                 snli_ds[split] = snli_ds["test"]
@@ -57,7 +57,7 @@ class SNLIDataModule(pl.LightningDataModule):
             with open(glove_txt_path, 'r', encoding="utf-8") as file:
                 print("Reading GloVe embeddings...")
                 for i, line in tqdm.tqdm(enumerate(file)):
-                    if self.test_run and i >= 100:
+                    if self.use_subset and i >= 100:
                         print("Using reduced glove dataset")
                         break
                     vals = line.strip().split(' ')
@@ -100,7 +100,7 @@ class SNLIDataModule(pl.LightningDataModule):
     def setup(self, stage: str) -> None:
         self.snli_ds = load_dataset('snli')
         
-        if self.test_run:
+        if self.use_subset:
             print("Using reduced snli dataset")
             for split in self.snli_ds:
                 self.snli_ds[split] = self.snli_ds["test"]
