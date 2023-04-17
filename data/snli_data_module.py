@@ -74,7 +74,6 @@ class SNLIDataModule(pl.LightningDataModule):
         #     self.mnist_predict = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def collate_snli(self, batch):
-        print("Collating...\n")
         prems = [x[0] for x in batch]
         hypos = [x[1] for x in batch]
         labels = [x[2] for x in batch]
@@ -87,7 +86,6 @@ class SNLIDataModule(pl.LightningDataModule):
         prems_padded = torch.nn.utils.rnn.pad_sequence(prems, batch_first=True)
         hypos_padded = torch.nn.utils.rnn.pad_sequence(hypos, batch_first=True)
 
-        print("Collating finished! \n")
         return (prems_padded, prem_lengths), (hypos_padded, hypo_lengths), torch.tensor(labels)
 
     def train_dataloader(self):
