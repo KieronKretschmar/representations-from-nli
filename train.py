@@ -13,7 +13,7 @@ from datasets import load_dataset
 import nltk
 import pytorch_lightning as pl
 import pickle
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint, TQDMProgressBar, EarlyStopping
 import argparse
 from datetime import datetime
 
@@ -58,12 +58,14 @@ def train_model(datamodule, encoder_name, save_name=None, use_wandb = False, **m
             logger=None
 
         # Create a PyTorch Lightning trainer with the generation callback
-        trainer = pl.Trainer(default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),                          # Where to save models
+        trainer = pl.Trainer(default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),                         # Where to save models
                             accelerator="gpu" if str(device).startswith("cuda") else "cpu",                     # We run on a GPU (if possible)
                             devices=1,                                                                          # How many GPUs/CPUs we want to use (1 is enough for the notebooks)
                             max_epochs=25,                                                                      # How many epochs to train for if no patience is set
                             callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),  # Save the best checkpoint based on the maximum val_acc recorded. Saves only weights and not optimizer
-                                        LearningRateMonitor("epoch")],                                           # Log learning rate every epoch
+                                        LearningRateMonitor("epoch"),                                           # Log learning rate every epoch
+                                        TQDMProgressBar(refresh_rate=100),                                      # Don't flood SLURM
+                                        EarlyStopping(monitor="lr", mode="min", stopping_threshold=1e-5),]      # Stop when lr goes below 1e-5
                             logger=logger,                                                                      # Pass wandb logger
                             enable_progress_bar=True)                                                           # Set to False if you do not want a progress bar
 
