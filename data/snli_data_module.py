@@ -16,14 +16,15 @@ from .vocabulary import Vocabulary
 
 
 class SNLIDataModule(pl.LightningDataModule):
-    def __init__(self, vocab_src = "snli", rebuild_cache = False, num_workers = 3, batch_size=64, use_subset = False) -> None:
+    def __init__(self, vocab_src = "snli", rebuild_cache = False, num_workers = 3, batch_size=64, use_subset = False, cache_path = Path("./cache")) -> None:
         super().__init__()
         self.vocab_src = vocab_src
         self.batch_size = batch_size
         self.rebuild_cache = rebuild_cache
         self.num_workers = num_workers
-        self.vocab_cache_path = Path("cache/vocab.pickle")
-        self.token2vec_cache_path = Path("cache/token2vec.pickle")
+        self.cache_path = cache_path
+        self.vocab_cache_path = self.cache_path / "vocab.pickle"
+        self.token2vec_cache_path = self.cache_path / "token2vec.pickle"
         self.use_subset = use_subset
     
     def prepare_data(self) -> None:

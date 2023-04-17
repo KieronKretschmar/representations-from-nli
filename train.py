@@ -26,6 +26,8 @@ CHECKPOINT_PATH = Path("./checkpoints")
 CHECKPOINT_PATH.mkdir(exist_ok=True)
 BEST_ENCODER_CHECKPOINT_PATH = Path("./checkpoints/best")
 BEST_ENCODER_CHECKPOINT_PATH.mkdir(exist_ok=True)
+CACHE_PATH = Path("./cache")
+CACHE_PATH.mkdir(exist_ok=True)
 
 
 def train_model(datamodule, encoder_name, save_name=None, use_wandb = False, **model_kwargs):
@@ -117,7 +119,7 @@ def main():
     print("args: ", args)
 
 
-    datamodule = SNLIDataModule(rebuild_cache=args.rebuild_cache, use_subset=args.use_subset)
+    datamodule = SNLIDataModule(rebuild_cache=args.rebuild_cache, use_subset=args.use_subset, cache_path = CACHE_PATH)
 
     train_model(
         datamodule,
