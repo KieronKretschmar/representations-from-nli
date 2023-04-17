@@ -1,4 +1,3 @@
-name: atcs
 channels:
   - pytorch
   - nvidia
