@@ -4,21 +4,18 @@ import nltk
 import torch
 
 class SNLIDataset(Dataset):
-    def __init__(self, unprocessed_data, token2vec, unk_token) -> None:
+    def __init__(self, unprocessed_data, vocab) -> None:
         """A Dataset wrapper around a split of the SNLI Dataset.
         The words in hypotheses and premises are replaced with their embeddings once upon initialization.
 
         Args:
-            unprocessed_data (Dataset): The unprocessed data from SNLI.
-            token2vec (dict): The word embeddings used for preprocessing.
+            vocab (Vocabulary): Vocabulary object holding word embeddings.
         """
         super().__init__()
 
-        self.unk_token = unk_token
-
         self.data = [(
-            torch.stack([token2vec.get(token, self.unk_token) for token in nltk.word_tokenize(example["premise"])], dim=0),
-            torch.stack([token2vec.get(token, self.unk_token) for token in nltk.word_tokenize(example["hypothesis"])], dim=0),
+            torch.stack([vocab.get_embedding(token) for token in nltk.word_tokenize(example["premise"])], dim=0),
+            torch.stack([vocab.get_embedding(token) for token in nltk.word_tokenize(example["hypothesis"])], dim=0),
             example["label"])
             for example in tqdm.tqdm(unprocessed_data) if example["label"] > 0]      # Remove samples with broken labels < 0
 
