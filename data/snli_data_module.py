@@ -13,7 +13,6 @@ import tqdm
 
 from .snli_dataset import SNLIDataset
 from .vocabulary import Vocabulary
-from .word_embeddor import WordEmbeddor
 
 
 class SNLIDataModule(pl.LightningDataModule):
@@ -25,11 +24,10 @@ class SNLIDataModule(pl.LightningDataModule):
         self.num_workers = num_workers
         self.vocab_cache_path = Path("cache/vocab.pickle")
         self.token2vec_cache_path = Path("cache/token2vec.pickle")
-        self.word_embeddor_cache_path = Path("cache/wordembeddor.pickle")
         self.test_run = True
     
     def prepare_data(self) -> None:
-        """Download the SNLI dataset and creates and caches Vocabulary and WordEmbeddor.
+        """Download the SNLI dataset and creates and caches Vocabulary and token2vec dictionary.
         """
         # Download prerequisites
         snli_ds = load_dataset('snli')
@@ -91,18 +89,12 @@ class SNLIDataModule(pl.LightningDataModule):
             unk_vector = torch.tensor(np.array(average_glove_string.split(" "), dtype="float32"))
             token2vec[vocab.unk_token] = unk_vector
 
-            # # Create word embeddor
-            # word_embeddor = WordEmbeddor(vocab, token2vec)
-
             # Cache for future runs
             with open(self.token2vec_cache_path, 'wb') as handle:
                 pickle.dump(token2vec, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
             with open(self.vocab_cache_path, 'wb') as handle:
                 pickle.dump(vocab, handle, protocol=pickle.HIGHEST_PROTOCOL)
-                
-            # with open(self.word_embeddor_cache_name, 'wb') as handle:
-            #     pickle.dump(word_embeddor, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
     def setup(self, stage: str) -> None:
@@ -120,10 +112,6 @@ class SNLIDataModule(pl.LightningDataModule):
         print("Loading Vocab from cache.")
         with open(self.vocab_cache_path, 'rb') as handle:
             vocab = pickle.load(handle)
-
-        # print("Loading WordEmbeddor from cache.")
-        # with open(self.word_embeddor_cache_name, 'rb') as handle:
-        #     word_embeddor = pickle.load(handle)
 
         # Assign train/val datasets for use in dataloaders
         if stage == "fit":

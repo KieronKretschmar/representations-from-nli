@@ -10,7 +10,7 @@ class SNLIDataset(Dataset):
 
         Args:
             unprocessed_data (Dataset): The unprocessed data from SNLI.
-            word_embeddor (WordEmbeddor): The WordEmbeddor used for preprocessing.
+            token2vec (dict): The word embeddings used for preprocessing.
         """
         super().__init__()
 
