@@ -31,6 +31,10 @@ class SNLIDataModule(pl.LightningDataModule):
         """
         # Download prerequisites
         snli_ds = load_dataset('snli')
+        try:
+            nltk.data.find('tokenizers/punkt')
+        except LookupError:
+            nltk.download('punkt')
 
         if self.use_subset:
             print("Using reduced snli dataset")
