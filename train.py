@@ -49,13 +49,11 @@ def train_model(datamodule, encoder_name, save_name=None, use_wandb = False, **m
             save_name = encoder_name
 
         try:
-            if True: # TODO
-                logger = pl.loggers.WandbLogger(project="representations-from-nli", name=save_name + "_" + datetime.now().strftime("%d/%m/%Y-%H:%M:%S"), save_dir=LOG_PATH)
-            else:
-                logger = None
+            logger = pl.loggers.WandbLogger(project="representations-from-nli", name=save_name + "_" + datetime.now().strftime("%d/%m/%Y-%H:%M:%S"), save_dir=LOG_PATH)
+
         except:
-            print("Logging deactivated! Please log in to wandb to enable logging.")
-            logger=None
+            print("Logging offline!")
+            logger = pl.loggers.WandbLogger(project="representations-from-nli", name=save_name + "_" + datetime.now().strftime("%d/%m/%Y-%H:%M:%S"), save_dir=LOG_PATH, offline=True)
 
         # Create a PyTorch Lightning trainer with the generation callback
         trainer = pl.Trainer(default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),                         # Where to save models
