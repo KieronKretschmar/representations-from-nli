@@ -73,12 +73,7 @@ def train_model(datamodule, encoder_name, save_name=None, use_wandb = False, **m
         print(f"Done fitting {encoder_name}.")
         best_model = NLIModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path) # Load best checkpoint after training
 
-        # Test best model on validation and test set
-        val_result = trainer.test(best_model, datamodule=datamodule, verbose=False)
-        test_result = trainer.test(best_model, datamodule=datamodule, verbose=False)
-        result = {"test": test_result[0]["test_acc"], "val": val_result[0]["test_acc"]}
-
-        # TODO Store best model for evaluation
+        # Store best model for later evaluation
         best_encoder_path = BEST_ENCODER_CHECKPOINT_PATH / encoder_name
         print(f"Saving encoder to {best_encoder_path}...")
         torch.save(best_model.encoder, best_encoder_path)
@@ -113,13 +108,14 @@ def main():
         args = argparse.Namespace(
             encoder="unilstm",
             save_name=None,
-            rebuild_cache=False,
+            rebuild_cache=True,
+            use_subset=True
         )
 
     print("args: ", args)
 
 
-    datamodule = SNLIDataModule(rebuild_cache=args.rebuild_cache, use_subset=args.use_subset, cache_path = CACHE_PATH)
+    datamodule = SNLIDataModule(rebuild_cache=args.rebuild_cache, use_subset=args.use_subset, cache_path=CACHE_PATH)
 
     train_model(
         datamodule,

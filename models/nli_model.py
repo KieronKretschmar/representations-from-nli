@@ -40,25 +40,18 @@ class NLIModel(pl.LightningModule):
         Returns:
             tensor: A batch of logits.
         """
-        print("Forward...\n")
-        tic = time.time()
         (prems, prem_lengths), (hypos, hypo_lengths), labels = batch
 
         # Get sentence representations
         prem_embs = self.encoder(prems, prem_lengths)   # (B, SeqEmb)
         hypo_embs = self.encoder(hypos, hypo_lengths)   # (B, SeqEmb)
 
-        print(f"Sentence embedding dim for {self.encoder_name}: {prem_embs.shape[1]}")
-
         # Use both sentence representations to create task representations
         task_embs = torch.cat((prem_embs, hypo_embs, torch.abs(prem_embs - hypo_embs), prem_embs * hypo_embs), dim=1) # (B, 2 * SeqEmb + SeqEmb + SeqEmb) = (B, 4 * SeqEmb)
-
 
         # Classify task representations
         logits = self.classifier(task_embs) # (B, 3)
 
-        toc = time.time() - tic
-        print(f"Forward step finished after {toc} seconds! \n")
         return logits
 
     def configure_optimizers(self):
@@ -69,7 +62,6 @@ class NLIModel(pl.LightningModule):
         0.99. At each epoch, we divide the learning rate
         by 5 if the dev accuracy decreases."
         """
-        print("Configuring optimizers...\n")
         optimizer = optim.SGD(self.parameters(), lr=0.1)
         
         step_sched = optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=1, gamma=0.99)
@@ -95,14 +87,11 @@ class NLIModel(pl.LightningModule):
             "frequency": 1
         }
 
-        print("Configuring optimizers finished\n")
         return [optimizer], [step_sched_config, plateau_sched_config]
     
     # Shameless copy-paste-adapt from Philipp Lippe's tutorial at
     # https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial5/Inception_ResNet_DenseNet.html
     def training_step(self, batch, batch_idx):
-        print("Training step...\n")
-        tic = time.time()
         # "batch" is the output of the data loader.
         (prems, prem_lengths), (hypos, hypo_lengths), labels = batch
         preds = self.forward(batch)
@@ -112,23 +101,15 @@ class NLIModel(pl.LightningModule):
         # Logs the accuracy per epoch to tensorboard (weighted average over batches)
         self.log('train_acc', acc, on_step=False, on_epoch=True)
         self.log('train_loss', loss)
-
-        # do stuff
-        toc = time.time() - tic
-        print(f"Training step finished after {toc} seconds! \n")
         return loss  # Return tensor to call ".backward" on
     
 
     def validation_step(self, batch, batch_idx):
-        print("Validation step...\n")
-        tic = time.time()
         (prems, prem_lengths), (hypos, hypo_lengths), labels = batch
         preds = self.forward(batch).argmax(dim=-1)
         acc = (labels == preds).float().mean()
         # By default logs it per epoch (weighted average over batches)
         self.log('val_acc', acc.item(), on_epoch=True)
-        toc = time.time() - tic
-        print(f"Validation step finished after {toc} seconds! \n")
 
     def test_step(self, batch, batch_idx):
         (prems, prem_lengths), (hypos, hypo_lengths), labels = batch
