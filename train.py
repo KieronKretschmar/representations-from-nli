@@ -73,7 +73,7 @@ def train_model(datamodule, encoder_name, save_name=None, use_wandb = False, **m
         best_model = NLIModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path) # Load best checkpoint after training
 
         # Store best model for later evaluation
-        best_encoder_path = BEST_ENCODER_CHECKPOINT_PATH / encoder_name
+        best_encoder_path = BEST_ENCODER_CHECKPOINT_PATH / encoder_name + ".ckpt"
         print(f"Saving encoder to {best_encoder_path}...")
         torch.save(best_model.encoder, best_encoder_path)
 
