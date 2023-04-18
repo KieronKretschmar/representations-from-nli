@@ -119,7 +119,7 @@ class BidirectionalMaxPoolLSTM(nn.Module):
         with torch.no_grad():
             output_padded[output_padded==0] = -1e8
 
-        out = torch.max(output_padded, dim = 1) # (B, 2 * hidden_size)
+        out, max_indices = torch.max(output_padded, dim = 1) # out has shape (B, 2 * hidden_size)
         return out
 
 model_dict = {
