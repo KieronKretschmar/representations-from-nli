@@ -1,0 +1,31 @@
+#!/bin/bash
+#SBATCH --partition=gpu_titanrtx_shared_course
+#SBATCH --gres=gpu:1
+#SBATCH --job-name=PythonTest
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=3
+#SBATCH --time=04:00:00
+#SBATCH --mem=32000M
+#SBATCH --output=slurm_logs/slurm_output_%A.out
+
+module purge
+module load 2021
+module load Anaconda3/2021.05
+
+# Your job starts in the directory where you call sbatch
+cd $HOME/representations-from-nli/
+# Activate your environment
+source activate atcs
+
+# Good practice: define your directory where to save the models, and copy the job file to it
+JOB_FILE=$HOME/atcs_practical_1/test_python.job
+CHECKPOINTPARENTDIR=$HOME/atcs_practical_1/checkpoints
+CHECKPOINTDIR=$HOME/atcs_practical_1/checkpoints/array_job_${SLURM_ARRAY_JOB_ID}
+
+mkdir $CHECKPOINTPARENTDIR
+mkdir $CHECKPOINTDIR
+rsync $JOB_FILE $CHECKPOINTDIR/
+
+export WANDB_API_KEY=0
+
+srun python -u train.py --encoder bimaxlstm  
