@@ -68,9 +68,9 @@ def main():
 
     print(f"Loading encoder from {args.encoder_checkpoint_path}")
     torch.from_file(args.encoder_checkpoint_path)
-    model = NLIModel.load_from_checkpoint(args.encoder_checkpoint_path)
-    model.eval()
-    model_fname = Path(args.encoder_checkpoint_path).stem
+    encoder = torch.load(args.encoder_checkpoint_path)
+    encoder.eval()
+    encoder_fname = Path(args.encoder_checkpoint_path).stem
 
     print(f"Loading Vocab from {args.encoder_checkpoint_path}")
     with open(args.vocab_path, 'rb') as handle:
@@ -102,16 +102,16 @@ def main():
         'STS14']
     
     # Create batcher which wraps the model to fit the SentEval interface
-    batcher = Batcher(model.encoder, vocab)
+    batcher = Batcher(encoder, vocab)
 
     # Create senteval
-    se = senteval.SE(None, batcher)
+    se = senteval.SE(params, batcher)
 
     # Evaluate
     print(f"Starting evaluation on encoder from {args.encoder_checkpoint_path}")
     results = se.eval(task_ids)
 
-    save_results_path = SENTEVAL_RESULTS_PATH / model_fname
+    save_results_path = SENTEVAL_RESULTS_PATH / encoder_fname
     with open(save_results_path, 'wb') as handle:
         pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print(f"Evaluation complete. Results saved to {save_results_path}!")
