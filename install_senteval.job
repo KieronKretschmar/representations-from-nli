@@ -24,7 +24,4 @@ python $HOME/SentEval/setup.py install
 cd $HOME/SentEval/data/downstream
 ./get_transfer_data.bash
 
-# Move downstream data to the data folder of representations-from-nli
-mv $HOME/SentEval/data/downstream $HOME/representations-from-nli/data/SentEval
-
 echo "Done!"
