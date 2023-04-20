@@ -104,7 +104,7 @@ def main():
     print(f"Starting evaluation on encoder from {args.encoder_checkpoint_path}")
     results = se.eval(task_ids)
 
-    save_results_path = SENTEVAL_RESULTS_PATH / encoder_fname
+    save_results_path = SENTEVAL_RESULTS_PATH / (encoder_fname + ".pkl")
     with open(save_results_path, 'wb') as handle:
         pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print(f"Evaluation complete. Results saved to {save_results_path}!")
