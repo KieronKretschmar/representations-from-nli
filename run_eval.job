@@ -17,6 +17,6 @@ cd $HOME/representations-from-nli/
 # Activate your environment
 source activate atcs
 
-export WANDB_API_KEY=0
-
-srun python -u train.py --encoder bimaxlstm  
+srun python -u eval.py \
+    --encoder-checkpoint-path $HOME/representations-from-nli/checkpoints/best/unilstm.ckpt \
+    --vocab-path $HOME/representations-from-nli/cache/vocab.pickle

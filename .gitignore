@@ -133,5 +133,4 @@ dmypy.json
 data/glove
 cache/
 .vscode/
-*.job
 *.pickle
