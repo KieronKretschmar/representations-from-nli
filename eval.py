@@ -1,4 +1,5 @@
 import os
+import sys
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
@@ -16,7 +17,12 @@ import pickle
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint, TQDMProgressBar, EarlyStopping
 import argparse
 from datetime import datetime
-from SentEval import senteval
+
+# SentEval module needs to be added to path explicitly as it is installed manually
+senteval_module_path = str(Path(os.getcwd()).parent / "SentEval")
+assert os.path.isdir(senteval_module_path), f"SentEval repository needs to be cloned into {senteval_module_path}!"
+sys.path.insert(0, senteval_module_path)
+import senteval
 
 from models import NLIModel, Batcher
 from data import SNLIDataModule
