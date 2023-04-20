@@ -12,16 +12,12 @@ module purge
 module load 2021
 module load Anaconda3/2021.05
 
-# Clone SentEval repository
-cd $HOME
-git clone https://github.com/facebookresearch/SentEval.git
-
-# Install SentEval package to conda environment atcs
-source activate atcs
-python $HOME/SentEval/setup.py install
-
 # Download data for downstream evaluation tasks
-cd $HOME/SentEval/data/downstream
-./get_transfer_data.bash
+cd $HOME/representations-from-nli/SentEval/data/downstream
+# bash ./get_transfer_data.bash
+
+# Install SentEval package
+source activate atcs
+python $HOME/representations-from-nli/SentEval/setup.py install
 
 echo "Done!"

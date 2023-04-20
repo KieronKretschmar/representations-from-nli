@@ -18,16 +18,13 @@ from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint, TQ
 import argparse
 from datetime import datetime
 
-# SentEval module needs to be added to path explicitly as it is installed manually
-SENTEVAL_MODULE_PATH = Path(os.getcwd()) / "SentEval"
-assert os.path.isdir(SENTEVAL_MODULE_PATH), f"SentEval repository needs to be cloned into {str(SENTEVAL_MODULE_PATH)}!"
-sys.path.insert(0, SENTEVAL_MODULE_PATH)
 import senteval
 
 from models import NLIModel, Batcher
 from data import SNLIDataModule
 
-SENTEVAL_DATA_PATH = SENTEVAL_MODULE_PATH / "downstream"
+SENTEVAL_MODULE_PATH = Path(os.getcwd()) / "SentEval"
+SENTEVAL_DATA_PATH = SENTEVAL_MODULE_PATH / "data"
 SENTEVAL_RESULTS_PATH = Path("./senteval_results")
 SENTEVAL_RESULTS_PATH.mkdir(exist_ok=True)
 
