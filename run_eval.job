@@ -18,5 +18,6 @@ cd $HOME/representations-from-nli/
 source activate atcs
 
 srun python -u eval.py \
-    --encoder-checkpoint-path $HOME/representations-from-nli/checkpoints/best/unilstm.ckpt \
-    --vocab-path $HOME/representations-from-nli/cache/vocab.pickle
+    --encoder-checkpoint-path $HOME/representations-from-nli/checkpoints/best/unilstm.ckpt\
+    --results-save-name unilstm \
+    --eval-task senteval
