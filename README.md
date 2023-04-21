@@ -3,6 +3,32 @@ This project is a partial reimplementation of the paper "Supervised learning of 
 
 In this project we train models to generate sentence embeddings utilizing GloVe and the SNLI corpus, and analyze their performance on downstream tasks using the SentEval package by Conneau et al. (2018).
 
+Repository structure:
+```
+    .
+    ├── SentEval/                       # a partial copy of the SentEval repository
+    ├── data/                           # folder containing data classes, where datasets will be placed
+    │   └── __init__.py
+    │   └── snli_data_module.py         # a LightningDataModule for the SNLI dataset
+    │   └── snli_dataset.py             # a dataset class for the SNLI dataset
+    │   └── vocabulary.py               # a vocabulary class for holding word embeddings
+    ├── images/                         # folder containing image
+    ├── models/                         # folder containing model classes
+    │   └── __init__.py
+    │   └── batcher.py                  # a wrapper class for evaluating encoders with SentEval
+    │   └── classifier.py               # a classifier for the NLI task
+    │   └── nli_model.py                # a LightningModule containing a sentence encoder and a classifier
+    │   └──  sentence_encoders.py       # classes for multiple sentence encoders
+    ├── senteval_results/               # folder containing detailed senteval evaluation results
+    ├── slurm_jobs/                     # jobs for running code on LISA or Snellius cluster
+    ├── .gitignore                      # .gitignore
+    ├── README.md                       # README
+    ├── LICENSE                         # MIT License
+    ├── analysis.ipynb                  # jupyter notebook containing results and analysis
+    ├── environment.yml                 # the conda environment specification
+    ├── eval.py                         # script for evaluating models on SNLI and SentEval
+    └── train.py                        # script for training models on SNLI
+```
 
 # Setup
 Install the packages referenced in `environment.yml`. For example by creating a conda environment with `conda env create --name myenv -f environment.yml`.
