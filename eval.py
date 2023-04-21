@@ -25,12 +25,8 @@ from data import SNLIDataModule
 
 SENTEVAL_MODULE_PATH = Path(os.getcwd()) / "SentEval"
 SENTEVAL_DATA_PATH = SENTEVAL_MODULE_PATH / "data"
-RESULTS_PATH = Path("./results")
-RESULTS_PATH.mkdir(exist_ok=True)
-SENTEVAL_RESULTS_PATH = RESULTS_PATH / "senteval"
+SENTEVAL_RESULTS_PATH = Path("./senteval_results")
 SENTEVAL_RESULTS_PATH.mkdir(exist_ok=True)
-SNLI_RESULTS_PATH = RESULTS_PATH / "snli"
-SNLI_RESULTS_PATH.mkdir(exist_ok=True)
 CACHE_PATH = Path("./cache")
 CACHE_PATH.mkdir(exist_ok=True)
 
@@ -111,11 +107,6 @@ def main():
     )
 
     parser.add_argument(
-        "--results-save-name",
-        required=True
-    )
-
-    parser.add_argument(
         "--eval-task",
         choices=["senteval", "snli"],
         default="senteval"
@@ -159,6 +150,11 @@ def main():
 
     # Args for evaluation with SentEval
     parser.add_argument(
+        "--results-save-name",
+        required=True
+    )
+
+    parser.add_argument(
         "--eval-config",
         choices=["default", "prototyping"],
         default="prototyping"
@@ -178,16 +174,11 @@ def main():
             senteval_save_results_path = senteval_save_results_path.with_suffix(".pkl")
         with open(senteval_save_results_path, 'wb') as handle:
             pickle.dump(senteval_results, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        print(f"Evaluation complete. Results saved to {senteval_save_results_path}!")
+        print(f"Evaluation complete! Results saved to {senteval_save_results_path}.")
 
     elif args.eval_task == "snli":
         snli_results = eval_snli(args)
-        snli_save_results_path = SNLI_RESULTS_PATH / args.results_save_name
-        if not snli_save_results_path.suffix:
-            snli_save_results_path = snli_save_results_path.with_suffix(".pkl")
-        with open(snli_save_results_path, 'wb') as handle:
-            pickle.dump(snli_results, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        print(f"Evaluation complete. Results saved to {snli_save_results_path}!")
+        print(f"Evaluation complete! Please obtain the results from logs.")
 
 if __name__ == '__main__':
     main()
