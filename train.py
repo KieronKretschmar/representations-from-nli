@@ -24,8 +24,8 @@ LOG_PATH = Path("./logs")
 LOG_PATH.mkdir(exist_ok=True)
 CHECKPOINT_PATH = Path("./checkpoints")
 CHECKPOINT_PATH.mkdir(exist_ok=True)
-BEST_ENCODER_CHECKPOINT_PATH = Path("./checkpoints/best")
-BEST_ENCODER_CHECKPOINT_PATH.mkdir(exist_ok=True)
+BEST_MODELS_CHECKPOINT_PATH = Path("./checkpoints/best")
+BEST_MODELS_CHECKPOINT_PATH.mkdir(exist_ok=True)
 CACHE_PATH = Path("./cache")
 CACHE_PATH.mkdir(exist_ok=True)
 
@@ -77,9 +77,13 @@ def train_model(args):
     best_model = NLIModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path) # Load best checkpoint after training
 
     # Store best model for later evaluation
-    best_encoder_path = BEST_ENCODER_CHECKPOINT_PATH / (save_name + ".ckpt")
+    best_encoder_path = BEST_MODELS_CHECKPOINT_PATH / (save_name + ".ckpt")
     print(f"Saving encoder to {best_encoder_path}...")
     torch.save(best_model.encoder, best_encoder_path)
+
+    best_classifier_path = BEST_MODELS_CHECKPOINT_PATH / (save_name + "-classifier.ckpt")
+    print(f"Saving classifier to {best_classifier_path}...")
+    torch.save(best_model.classifier, best_classifier_path)
 
 def main():
     parser = argparse.ArgumentParser()

@@ -32,9 +32,12 @@ CACHE_PATH.mkdir(exist_ok=True)
 
 def eval_snli(args):
     print(f"Loading encoder from {args.encoder_checkpoint_path}")
-    torch.from_file(args.encoder_checkpoint_path)
     encoder = torch.load(args.encoder_checkpoint_path)
     encoder.eval()
+
+    print(f"Loading classifier from {args.classifier_checkpoint_path}")
+    classifier = torch.load(args.classifier_checkpoint_path)
+    classifier.eval()
 
     snli_datamodule = SNLIDataModule(args)
 
@@ -43,7 +46,7 @@ def eval_snli(args):
                 devices=1,                                                                          # How many GPUs/CPUs we want to use (1 is enough for the notebooks)
                 enable_progress_bar=True)                                                           # Set to False if you do not want a progress bar
 
-    nli_model = NLIModel(encoder=encoder)
+    nli_model = NLIModel(encoder=encoder, classifier=classifier)
 
     pl.seed_everything(42) # To be reproducable
     trainer.test(nli_model, datamodule=snli_datamodule)
@@ -112,6 +115,11 @@ def main():
     )
     
     # SNLI evaluation args
+    parser.add_argument(
+        "--classifier-checkpoint-path",
+        required=False
+    )
+
     parser.add_argument(
         "--batch-size",
         type=int,
