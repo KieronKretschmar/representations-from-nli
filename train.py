@@ -122,13 +122,17 @@ def main():
         default=64,
     )
 
-    parser.add_argument("--rebuild-cache", help="Rebuild vocabulary even if cached version is available.",
-                    action="store_true",
-                    default=False)
+    parser.add_argument(
+        "--rebuild-cache",
+        help="Rebuild vocabulary even if cached version is available.",
+        action="store_true",
+        default=False)
     
-    parser.add_argument("--use-subset", help="Use subset of the data for training.",
-                    action="store_true",
-                    default=False)
+    parser.add_argument(
+        "--use-subset",
+        help="Use subset of the data for training.",
+        action="store_true",
+        default=False)
 
     parser.add_argument(
         "--unk-src",
