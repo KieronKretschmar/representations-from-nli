@@ -131,7 +131,7 @@ def main():
 
     parser.add_argument(
         "--unk-src",
-        choices=["average", "zeros"],
+        choices=["average", "zero"],
         default="average",
     )
         

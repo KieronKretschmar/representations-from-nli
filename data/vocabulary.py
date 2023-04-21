@@ -17,7 +17,7 @@ class Vocabulary():
             use_subset (bool, optional): Uses only a small number of embeddings and datapoints. Defaults to False.
             unk_src (str, optional): Source for the value of the unknown token. Defaults to "average". Options are:
                 "average": The average GloVe token embedding from GloVe.
-                "zeros": The 0-vector.
+                "zero": The 0-vector.
         """
         self.w2i = {}
         self.i2w = []
