@@ -103,6 +103,8 @@ def main():
     # Evaluate
     print(f"Starting evaluation on encoder from {args.encoder_checkpoint_path}")
     results = se.eval(task_ids)
+    print("Finished evaluation!")
+    print(results)
 
     save_results_path = SENTEVAL_RESULTS_PATH / (encoder_fname + ".pkl")
     with open(save_results_path, 'wb') as handle:
