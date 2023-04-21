@@ -118,6 +118,7 @@ def main():
     # DataModule args
     parser.add_argument(
         "--batch-size",
+        type=int,
         default=64,
     )
 
@@ -137,6 +138,7 @@ def main():
         
     parser.add_argument(
         "--num-workers",
+        type=int,
         default=3,
     )
 
