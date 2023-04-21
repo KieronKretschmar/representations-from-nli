@@ -25,50 +25,43 @@ from data import SNLIDataModule
 
 SENTEVAL_MODULE_PATH = Path(os.getcwd()) / "SentEval"
 SENTEVAL_DATA_PATH = SENTEVAL_MODULE_PATH / "data"
-SENTEVAL_RESULTS_PATH = Path("./senteval_results")
+RESULTS_PATH = Path("./results")
+RESULTS_PATH.mkdir(exist_ok=True)
+SENTEVAL_RESULTS_PATH = RESULTS_PATH / "senteval"
 SENTEVAL_RESULTS_PATH.mkdir(exist_ok=True)
+SNLI_RESULTS_PATH = RESULTS_PATH / "snli"
+SNLI_RESULTS_PATH.mkdir(exist_ok=True)
+CACHE_PATH = Path("./cache")
+CACHE_PATH.mkdir(exist_ok=True)
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--encoder-checkpoint-path", 
-        required=True
-    )
-
-    parser.add_argument(
-        "--vocab-path", 
-        required=True
-    )
-    
-    parser.add_argument(
-        "--eval-config",
-        choices=["default", "prototyping"],
-        default="prototyping"
-    )
-
-
-    args = parser.parse_args()
-
-    if False:
-        print("Debugging...")
-        args = argparse.Namespace(
-            encoder_checkpoint_path="./checkpoints/best/unilstm.ckpt",
-            vocab_path="./cache/vocab.pickle",
-            senteval_data_path="./data/SentEval",
-            eval_config="prototyping"
-        )
-
-
+def eval_snli(args):
     print(f"Loading encoder from {args.encoder_checkpoint_path}")
     torch.from_file(args.encoder_checkpoint_path)
     encoder = torch.load(args.encoder_checkpoint_path)
     encoder.eval()
-    encoder_fname = Path(args.encoder_checkpoint_path).stem
 
-    print(f"Loading Vocab from {args.encoder_checkpoint_path}")
+    snli_datamodule = SNLIDataModule(args)
+
+    trainer = pl.Trainer(
+                accelerator="gpu" if torch.cuda.is_available() else "cpu",                          # We run on a GPU (if possible)
+                devices=1,                                                                          # How many GPUs/CPUs we want to use (1 is enough for the notebooks)
+                enable_progress_bar=True)                                                           # Set to False if you do not want a progress bar
+
+    nli_model = NLIModel(encoder=encoder)
+
+    pl.seed_everything(42) # To be reproducable
+    trainer.test(nli_model, datamodule=snli_datamodule)
+
+def eval_senteval(args):
+    
+    print(f"Loading encoder from {args.encoder_checkpoint_path}")
+    torch.from_file(args.encoder_checkpoint_path)
+    encoder = torch.load(args.encoder_checkpoint_path)
+    encoder.eval()
+
+    print(f"Loading Vocab from {args.vocab_path}")
     with open(args.vocab_path, 'rb') as handle:
         vocab = pickle.load(handle)
-
 
     # Build SentEval params based on configurations offered in the SentEval repository
     if args.eval_config == "default":
@@ -81,7 +74,7 @@ def main():
         params['classifier'] = {'nhid': 0, 'optim': 'rmsprop', 'batch_size': 128,
                                         'tenacity': 3, 'epoch_size': 2}
         
-    # Choose the same tasks as in Conneau et al. 2018
+    # Choose the same tasks as in Conneau et al. 2017
     task_ids = [
         'MR',
         'CR',
@@ -106,12 +99,95 @@ def main():
     print("Finished evaluation!")
     print(results)
 
-    save_results_path = SENTEVAL_RESULTS_PATH / (encoder_fname + ".pkl")
-    with open(save_results_path, 'wb') as handle:
-        pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    print(f"Evaluation complete. Results saved to {save_results_path}!")
+    return results
 
+def main():
+    parser = argparse.ArgumentParser()
+
+    # General evaluation args
+    parser.add_argument(
+        "--encoder-checkpoint-path",
+        required=True
+    )
+
+    parser.add_argument(
+        "--results-save-name",
+        required=True
+    )
+
+    parser.add_argument(
+        "--eval-task",
+        choices=["senteval", "snli"],
+        default="senteval"
+    )
     
+    # SNLI evaluation args
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=64,
+    )
+
+    parser.add_argument(
+        "--rebuild-cache",
+        help="Rebuild vocabulary even if cached version is available.",
+        action="store_true",
+        default=False)
     
+    parser.add_argument(
+        "--use-subset",
+        help="Use subset of the data for training.",
+        action="store_true",
+        default=False)
+
+    parser.add_argument(
+        "--unk-src",
+        choices=["average", "zero"],
+        default="average",
+    )
+
+    parser.add_argument(
+        "--num-workers",
+        type=int,
+        default=3,
+    )
+
+    parser.add_argument(
+        "--cache-path",
+        default="./cache",
+    )
+
+    # Args for evaluation with SentEval
+    parser.add_argument(
+        "--eval-config",
+        choices=["default", "prototyping"],
+        default="prototyping"
+    )
+
+    parser.add_argument(
+        "--vocab-path",
+        default="./cache/vocab.pickle",
+    )
+
+    args = parser.parse_args()
+
+    if args.eval_task == "senteval":
+        senteval_results = eval_senteval(args)
+        senteval_save_results_path = SENTEVAL_RESULTS_PATH / args.results_save_name
+        if not senteval_save_results_path.suffix:
+            senteval_save_results_path = senteval_save_results_path.with_suffix(".pkl")
+        with open(senteval_save_results_path, 'wb') as handle:
+            pickle.dump(senteval_results, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        print(f"Evaluation complete. Results saved to {senteval_save_results_path}!")
+
+    elif args.eval_task == "snli":
+        snli_results = eval_snli(args)
+        snli_save_results_path = SNLI_RESULTS_PATH / args.results_save_name
+        if not snli_save_results_path.suffix:
+            snli_save_results_path = snli_save_results_path.with_suffix(".pkl")
+        with open(snli_save_results_path, 'wb') as handle:
+            pickle.dump(snli_results, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        print(f"Evaluation complete. Results saved to {snli_save_results_path}!")
+
 if __name__ == '__main__':
     main()
