@@ -1,3 +1,4 @@
+import os
 import torch
 from torch.utils.data import DataLoader
 import pickle
@@ -16,15 +17,15 @@ from .vocabulary import Vocabulary
 
 
 class SNLIDataModule(pl.LightningDataModule):
-    def __init__(self, vocab_src = "snli", rebuild_cache = False, num_workers = 3, batch_size=64, use_subset = False, cache_path = Path("./cache")) -> None:
+    def __init__(self, args) -> None:
         super().__init__()
-        self.vocab_src = vocab_src
-        self.batch_size = batch_size
-        self.rebuild_cache = rebuild_cache
-        self.num_workers = num_workers
-        self.cache_path = cache_path
+        self.batch_size = args.batch_size
+        self.rebuild_cache = args.rebuild_cache
+        self.use_subset = args.use_subset
+        self.unk_src = args.unk_src
+        self.num_workers = args.num_workers
+        self.cache_path = Path(args.cache_path)
         self.vocab_cache_path = self.cache_path / "vocab.pickle"
-        self.use_subset = use_subset
     
     def prepare_data(self) -> None:
         """Download the SNLI dataset and creates and caches Vocabulary and token2vec dictionary.
@@ -37,11 +38,11 @@ class SNLIDataModule(pl.LightningDataModule):
 
 
         # Try to load self.vocab and self.word_embeddor from cache 
-        cached_vocab_exist = Path.exists(Path(self.vocab_cache_path))
+        cached_vocab_exist = Path.exists(self.vocab_cache_path)
         # Create self.vocab and self.word_embeddor if necessary
         if self.rebuild_cache or not cached_vocab_exist:
-            vocab = Vocabulary()
-            vocab.build_from_snli(self.use_subset, unk_src="average")
+            vocab = Vocabulary(use_subset = self.use_subset, unk_src=self.unk_src)
+            vocab.build_from_snli()
 
             with open(self.vocab_cache_path, 'wb') as handle:
                 pickle.dump(vocab, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -58,6 +59,10 @@ class SNLIDataModule(pl.LightningDataModule):
         print("Loading Vocab from cache.")
         with open(self.vocab_cache_path, 'rb') as handle:
             vocab = pickle.load(handle)
+
+        # Make sure the vocabulary uses the desired settings
+        assert vocab.unk_src == self.unk_src, f"The cached vocabulary at {self.vocab_cache_path} uses unk_src {vocab.unk_src}, " \
+            f"but {self.unk_src} was specified. Consider rebuilding cache with --rebuild-cache option."
 
         # Assign train/val datasets for use in dataloaders
         if stage == "fit":

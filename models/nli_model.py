@@ -8,7 +8,7 @@ from .classifier import Classifier
 from .sentence_encoders import create_encoder
 
 class NLIModel(pl.LightningModule):
-    def __init__(self, encoder_name = None, encoder = None, encoder_params = {}):
+    def __init__(self, encoder_name = None, encoder = None, encoder_hparams = {}):
         """A model to learn sentence representations from natural language inference as described by Conneau et al. in arxiv.org/abs/1705.02364v5.
         The model consists of a sequence embedding module followed by a 3-way classification module. 
 
@@ -27,7 +27,7 @@ class NLIModel(pl.LightningModule):
 
         # Initialize sequence embedding module
         if encoder_name:
-            self.encoder = create_encoder(encoder_name, encoder_params)
+            self.encoder = create_encoder(encoder_name, encoder_hparams)
         elif encoder:
             self.encoder = encoder
 

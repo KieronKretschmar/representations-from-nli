@@ -19,4 +19,6 @@ source activate atcs
 
 export WANDB_API_KEY=0
 
-srun python -u train.py --encoder bimaxlstm  
+srun python -u train.py --logger wandb --batch-size 64 --max-epochs 25 --num-workers 3 \
+    --save-name bimaxlstm-zeros --encoder-name bimaxlstm \
+    --unk-src zeros --rebuild-cache
