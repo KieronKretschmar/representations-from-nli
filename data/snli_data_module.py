@@ -25,7 +25,7 @@ class SNLIDataModule(pl.LightningDataModule):
         self.unk_src = args.unk_src
         self.num_workers = args.num_workers
         self.cache_path = Path(args.cache_path)
-        self.vocab_cache_path = self.cache_path / "vocab.pickle"
+        self.vocab_cache_path = self.cache_path / "vocab.pkl"
     
     def prepare_data(self) -> None:
         """Download the SNLI dataset and creates and caches Vocabulary and token2vec dictionary.

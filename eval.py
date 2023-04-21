@@ -161,7 +161,7 @@ def main():
 
     parser.add_argument(
         "--vocab-path",
-        default="./cache/vocab.pickle",
+        default="./cache/vocab.pkl",
     )
 
     args = parser.parse_args()
