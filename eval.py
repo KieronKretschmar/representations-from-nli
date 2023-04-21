@@ -51,7 +51,6 @@ def eval_snli(args):
 def eval_senteval(args):
     
     print(f"Loading encoder from {args.encoder_checkpoint_path}")
-    torch.from_file(args.encoder_checkpoint_path)
     encoder = torch.load(args.encoder_checkpoint_path)
     encoder.eval()
 
