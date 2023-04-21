@@ -131,6 +131,7 @@ dmypy.json
 
 # End of template
 data/glove
+SentEval/data
 cache/
 .vscode/
 *.pickle
