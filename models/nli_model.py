@@ -20,7 +20,7 @@ class NLIModel(pl.LightningModule):
         """
         super().__init__()
 
-        assert (encoder and classifier) ^ encoder_name, "Either pre-trained encoder and classifier or an encoder_name must be specified to build SLIModel."
+        assert (encoder and classifier) ^ bool(encoder_name), "Either pre-trained encoder and classifier or an encoder_name must be specified to build SLIModel."
 
         # Exports the hyperparameters to a YAML file, and create "self.hparams" namespace
         self.save_hyperparameters()
