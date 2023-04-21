@@ -8,18 +8,29 @@ from .classifier import Classifier
 from .sentence_encoders import create_encoder
 
 class NLIModel(pl.LightningModule):
-    """A model to learn sentence representations from natural language inference as described by Conneau et al. in arxiv.org/abs/1705.02364v5.
-    The model consists of a sequence embedding module followed by a 3-way classification module. 
-    """
-    def __init__(self, encoder_name, encoder_params = {}):
+    def __init__(self, encoder_name = None, encoder = None, encoder_params = {}):
+        """A model to learn sentence representations from natural language inference as described by Conneau et al. in arxiv.org/abs/1705.02364v5.
+        The model consists of a sequence embedding module followed by a 3-way classification module. 
+
+        See sentence_encoders.py for more information about available encoders.
+        Args:
+            encoder_name (str, optional): Name of the encoder to be initialized. Defaults to None.
+            encoder (nn.Module, optional): Encoder model. Defaults to None.
+            encoder_params (dict, optional): Additional parameters for the encoder. Defaults to {}.
+        """
         super().__init__()
+
+        assert encoder_name or encoder and not (encoder_name and encoder), "Exactly one of encoder_name or encoder must be specified to build SLIModel."
 
         # Exports the hyperparameters to a YAML file, and create "self.hparams" namespace
         self.save_hyperparameters()
 
-        self.encoder_name = encoder_name
         # Initialize sequence embedding module
-        self.encoder = create_encoder(encoder_name, encoder_params)
+        if encoder_name:
+            self.encoder = create_encoder(encoder_name, encoder_params)
+        elif encoder:
+            self.encoder = encoder
+
         # Initialize classification module
         self.task_emb_size = self.encoder.output_size * 4
         self.classifier = Classifier(self.task_emb_size)
