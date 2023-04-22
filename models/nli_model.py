@@ -25,16 +25,16 @@ class NLIModel(pl.LightningModule):
         # Exports the hyperparameters to a YAML file, and create "self.hparams" namespace
         self.save_hyperparameters()
 
-        # Initialize sequence embedding module
+        # Initialize sequence embedding module or simply assign it, if provided
         if encoder_name:
             self.encoder = create_encoder(encoder_name, encoder_hparams)
+            self.task_emb_size = self.encoder.output_size * 4
+            self.classifier = Classifier(self.task_emb_size)
         elif (encoder and classifier):
             self.encoder = encoder
+            self.task_emb_size = self.encoder.output_size * 4
             self.classifier = classifier
 
-        # Initialize classification module
-        self.task_emb_size = self.encoder.output_size * 4
-        self.classifier = Classifier(self.task_emb_size)
         # Create loss module
         self.loss_module = nn.CrossEntropyLoss()
         # Example input for visualizing the graph in Tensorboard
