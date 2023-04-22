@@ -1,7 +1,9 @@
 # Overview
 This project is a partial reimplementation of the paper "Supervised learning of universal sentence representations from natural language inference data" from Conneau et al. 2017. 
 
-In this project we train models to generate sentence embeddings utilizing GloVe and the SNLI corpus, and analyze their performance on downstream tasks using the SentEval package by Conneau et al. (2018).
+In this project we train models to generate sentence embeddings on the natural language inference (NLI) task utilizing GloVe and the SNLI corpus. We further analyze their performance on downstream tasks using the SentEval package by Conneau et al. (2018).
+
+For the NLI task, the model is presented with two sentences, one premise and one hypothesis. The model then has to classify their relationship into one of the following 3 classes: Entailment (when the hypothesis follows the premise), Contradiction or Neutral (in cases of neither Entailment nor Contradiction). Examples of this task are presented in `demo.ipynb`.   
 
 Repository structure:
 ```
@@ -49,7 +51,7 @@ The 840B-token 300-dimensional GloVe embeddings are required to train and evalua
 The SNLI dataset will automatically be downloaded from the Hugging Face Hub with the `datasets` library. If a cached version already exists, it will be used. 
 
 ## Pretrained models and vocabulary
-At the time of writing, checkpoints of 8 pretrained sentence encoders, one classifier for the natural language inference task for one of these encoders, and 2 vocabularies, which contain the embeddings, are avilable on [Google Drive](https://drive.google.com/drive/folders/1XMYTyJigxU4JLDfhy-Y7VIWd5HOlr6u0?usp=sharing). These can be downloaded and evaluated. For more info on how to evaluate them, see sections below as well as `demo.ipynb` and `analysis.ipynb`.
+At the time of writing, checkpoints of 8 pretrained sentence encoders, one classifier for the natural language inference task for one of these encoders, and 2 vocabularies, which contain the embeddings, are avilable on [Google Drive](https://drive.google.com/drive/folders/1XMYTyJigxU4JLDfhy-Y7VIWd5HOlr6u0?usp=sharing). These can be downloaded and evaluated. For more info on how to evaluate them, see sections below as well as `analysis.ipynb`.
 
 # Training models
 Models can be trained using the `train.py` script. For more information about the arguments, please look at `train.py`.
@@ -81,18 +83,9 @@ If `--eval-task senteval` was specified, then an object holding the detailed res
 
 Users of Lisa or Snellius can use the `run_eval.job` script that is part of this repository.
 
-# Demo
-This repository contains a demo.ipynb with examples of how to use the trained models.
 
-# Results and Analysis
-This repository contains a analysis.ipynb, where test results for SNLI and SentEval are shown and discussed. 
-
-# Design choices
-The parameters in `train.py` and `eval.py` allow for some flexibility in altering training and evaluation.
-
-One decision that is currently not configurable is the alignment of the vocabulary. We have chosen to align the word embedding layer with the words from the SNLI corpus for which GloVe embeddings are available. We have chosen not to include additional words appearing in downstream-tasks because this project is about evaluating *general* sentence representations for which the downstream tasks (e.g. SentEval) are unknown.
-
-Note that we would expect the performance on SentEval to go up if the test vocabulary was known during training, although the encoder would never see those exact tokens during training, because it might learn useful information from having seen *similar* tokens' embeddings.
+# Results, analysis and demonstration
+This repository contains a analysis.ipynb, where test results for SNLI and SentEval are shown and discussed. Additionally, code for demonstrating how a model performs the NLI task is provided.
 
 # References
 - S. R. Bowman, G. Angeli, C. Potts, and C. D. Manning. A large annotated corpus for learning natural language inference. arXiv preprint arXiv:1508.05326, 2015.
